@@ -1,0 +1,3 @@
+Very simple plugin to use xs3p as part of a maven build.
+
+Usage: mvn xs3p:xs3p

@@ -1,25 +1,16 @@
 /*
- * The MIT License
+ * The DSTC Public License (DPL)
  *
- * Copyright 2012 Antoine Gourlay <antoine@gourlay.fr>.
+ * Copyright (c) 2012 Antoine Gourlay <antoine@gourlay.fr>
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * The contents of this file are subject to the DSTC Public License Version 
+ * 1.1 (the 'License'); you may not use this file except in compliance with 
+ * the License.
+ * 
+ * Software distributed under the License is distributed on an 'AS IS' basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the 
+ * License.
  */
 package net.xs3p;
 
@@ -62,7 +53,7 @@ public class Xs3jMojo
 
         public void execute() throws MojoExecutionException, MojoFailureException {
                 final String xsdSrcPath = xsdSources.getAbsolutePath();
-                
+
                 getLog().info(String.format("Processing folder '%s'", xsdSrcPath));
 
                 File targetDirectory = new File(outputDirectory, "schema-doc");
@@ -73,8 +64,8 @@ public class Xs3jMojo
                 } else {
                         targetDirectory.mkdirs();
                 }
-                
-                
+
+
                 Collection<File> fil = FileUtils.listFiles(xsdSources, new String[]{"xsd"}, true);
                 getLog().info(String.format("Found %d xsd files.", fil.size()));
 
@@ -88,16 +79,16 @@ public class Xs3jMojo
 
                 for (File ff : fil) {
                         getLog().info(String.format("Processing schema '%s'", ff.getAbsolutePath()));
-                        
+
                         String oldpath = ff.getParentFile().getAbsolutePath();
                         String localpath = oldpath.substring(xsdSrcPath.length());
-                        
+
                         File targetDir2 = new File(targetDirectory, localpath);
                         targetDir2.mkdirs();
-                        
+
                         File targetFile = new File(targetDir2, ff.getName() + ".html");
                         getLog().info(String.format("Generating '%s'", targetFile.getAbsolutePath()));
-                        
+
                         try {
                                 tr.transform(new StreamSource(ff), new StreamResult(targetFile));
                         } catch (TransformerException transformerException) {
@@ -105,7 +96,7 @@ public class Xs3jMojo
                                         + ff.getName() + "'.", transformerException);
                         }
                 }
-                
+
                 getLog().info(String.format("Generated %d files in folder '%s'.", fil.size(), targetDirectory.getAbsolutePath()));
         }
 }

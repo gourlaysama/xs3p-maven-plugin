@@ -49,12 +49,24 @@ public class Xs3jMojo
          * @parameter default-value="src/main/resources/"
          */
         private File xsdSources;
+        /**
+         * Keep the directory hierarchy.
+         * @parameter default-value="true"
+         */
+        private Boolean keepDirectoryHierarchy;
+        
+        /**
+         * Recursively look for schemas (.xsd files)
+         * @parameter default-value="true"
+         */
+        private Boolean recursive;
 
         public void execute() throws MojoExecutionException, MojoFailureException {
                 final String xsdSrcPath = xsdSources.getAbsolutePath();
 
                 getLog().info(String.format("Processing folder '%s'", xsdSrcPath));
 
+                // making sure the output directory is fresh and exists
                 if (outputDirectory.exists()) {
                         FileUtils.deleteQuietly(outputDirectory);
                         outputDirectory.mkdir();
@@ -63,7 +75,7 @@ public class Xs3jMojo
                 }
 
 
-                Collection<File> fil = FileUtils.listFiles(xsdSources, new String[]{"xsd"}, true);
+                Collection<File> fil = FileUtils.listFiles(xsdSources, new String[]{"xsd"}, recursive);
                 getLog().info(String.format("Found %d xsd files.", fil.size()));
 
                 TransformerFactory fac = TransformerFactory.newInstance();
@@ -77,13 +89,19 @@ public class Xs3jMojo
                 for (File ff : fil) {
                         getLog().info(String.format("Processing schema '%s'", ff.getAbsolutePath()));
 
-                        String oldpath = ff.getParentFile().getAbsolutePath();
-                        String localpath = oldpath.substring(xsdSrcPath.length());
+                        File targetDir;
+                        if (keepDirectoryHierarchy) {
+                                String oldpath = ff.getParentFile().getAbsolutePath();
+                                String localpath = oldpath.substring(xsdSrcPath.length());
 
-                        File targetDir2 = new File(outputDirectory, localpath);
-                        targetDir2.mkdirs();
+                                targetDir = new File(outputDirectory, localpath);
+                                targetDir.mkdirs();
 
-                        File targetFile = new File(targetDir2, ff.getName() + ".html");
+                        } else {
+                                targetDir = outputDirectory;
+                        }
+                        
+                        File targetFile = new File(targetDir, ff.getName() + ".html");
                         getLog().info(String.format("Generating '%s'", targetFile.getAbsolutePath()));
 
                         try {

@@ -41,8 +41,7 @@ public class Xs3jMojo
 
         /**
          * Location of the output directory.
-         * @parameter expression="${project.build.directory}"
-         * @required
+         * @parameter default-value="${project.build.directory}/schema-doc"
          */
         private File outputDirectory;
         /**
@@ -56,13 +55,11 @@ public class Xs3jMojo
 
                 getLog().info(String.format("Processing folder '%s'", xsdSrcPath));
 
-                File targetDirectory = new File(outputDirectory, "schema-doc");
-
-                if (targetDirectory.exists()) {
-                        FileUtils.deleteQuietly(targetDirectory);
-                        targetDirectory.mkdir();
+                if (outputDirectory.exists()) {
+                        FileUtils.deleteQuietly(outputDirectory);
+                        outputDirectory.mkdir();
                 } else {
-                        targetDirectory.mkdirs();
+                        outputDirectory.mkdirs();
                 }
 
 
@@ -83,7 +80,7 @@ public class Xs3jMojo
                         String oldpath = ff.getParentFile().getAbsolutePath();
                         String localpath = oldpath.substring(xsdSrcPath.length());
 
-                        File targetDir2 = new File(targetDirectory, localpath);
+                        File targetDir2 = new File(outputDirectory, localpath);
                         targetDir2.mkdirs();
 
                         File targetFile = new File(targetDir2, ff.getName() + ".html");
@@ -97,6 +94,6 @@ public class Xs3jMojo
                         }
                 }
 
-                getLog().info(String.format("Generated %d files in folder '%s'.", fil.size(), targetDirectory.getAbsolutePath()));
+                getLog().info(String.format("Generated %d files in folder '%s'.", fil.size(), outputDirectory.getAbsolutePath()));
         }
 }

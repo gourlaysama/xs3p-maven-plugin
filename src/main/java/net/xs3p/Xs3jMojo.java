@@ -54,7 +54,6 @@ public class Xs3jMojo
          * @parameter default-value="true"
          */
         private Boolean keepDirectoryHierarchy;
-        
         /**
          * Recursively look for schemas (.xsd files)
          * @parameter default-value="true"
@@ -76,42 +75,49 @@ public class Xs3jMojo
 
 
                 Collection<File> fil = FileUtils.listFiles(xsdSources, new String[]{"xsd"}, recursive);
-                getLog().info(String.format("Found %d xsd files.", fil.size()));
 
-                TransformerFactory fac = TransformerFactory.newInstance();
-                Transformer tr = null;
-                try {
-                        tr = fac.newTransformer(new StreamSource(Xs3jMojo.class.getResourceAsStream("xs3p.xsl")));
-                } catch (TransformerConfigurationException ex) {
-                        throw new MojoExecutionException("Failed to initialize the XSLT Processor.", ex);
-                }
+                int size = fil.size();
+                if (size == 0) {
+                        // no files were found; problem?
+                        getLog().warn("Found 0 xsd files! Doing nothing.");
+                } else {
+                        getLog().info(String.format("Found %d xsd files.", size));
 
-                for (File ff : fil) {
-                        getLog().info(String.format("Processing schema '%s'", ff.getAbsolutePath()));
-
-                        File targetDir;
-                        if (keepDirectoryHierarchy) {
-                                String oldpath = ff.getParentFile().getAbsolutePath();
-                                String localpath = oldpath.substring(xsdSrcPath.length());
-
-                                targetDir = new File(outputDirectory, localpath);
-                                targetDir.mkdirs();
-
-                        } else {
-                                targetDir = outputDirectory;
-                        }
-                        
-                        File targetFile = new File(targetDir, ff.getName() + ".html");
-                        getLog().info(String.format("Generating '%s'", targetFile.getAbsolutePath()));
-
+                        TransformerFactory fac = TransformerFactory.newInstance();
+                        Transformer tr = null;
                         try {
-                                tr.transform(new StreamSource(ff), new StreamResult(targetFile));
-                        } catch (TransformerException transformerException) {
-                                throw new MojoFailureException("Failed to generate documentation for '"
-                                        + ff.getName() + "'.", transformerException);
+                                tr = fac.newTransformer(new StreamSource(Xs3jMojo.class.getResourceAsStream("xs3p.xsl")));
+                        } catch (TransformerConfigurationException ex) {
+                                throw new MojoExecutionException("Failed to initialize the XSLT Processor.", ex);
                         }
-                }
 
-                getLog().info(String.format("Generated %d files in folder '%s'.", fil.size(), outputDirectory.getAbsolutePath()));
+                        for (File ff : fil) {
+                                getLog().info(String.format("Processing schema '%s'", ff.getAbsolutePath()));
+
+                                File targetDir;
+                                if (keepDirectoryHierarchy) {
+                                        String oldpath = ff.getParentFile().getAbsolutePath();
+                                        String localpath = oldpath.substring(xsdSrcPath.length());
+
+                                        targetDir = new File(outputDirectory, localpath);
+                                        targetDir.mkdirs();
+
+                                } else {
+                                        targetDir = outputDirectory;
+                                }
+
+                                File targetFile = new File(targetDir, ff.getName() + ".html");
+                                getLog().info(String.format("Generating '%s'", targetFile.getAbsolutePath()));
+
+                                try {
+                                        tr.transform(new StreamSource(ff), new StreamResult(targetFile));
+                                } catch (TransformerException transformerException) {
+                                        throw new MojoFailureException("Failed to generate documentation for '"
+                                                + ff.getName() + "'.", transformerException);
+                                }
+                        }
+
+                        getLog().info(String.format("Generated %d files in folder '%s'.", fil.size(), outputDirectory.getAbsolutePath()));
+                }
         }
 }
